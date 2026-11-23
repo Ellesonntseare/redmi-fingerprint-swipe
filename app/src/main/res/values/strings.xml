@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Fingerprint Swipe</string>
+    <string name="service_description">Detects swipe directions from supported fingerprint sensors. A downward swipe opens the notification panel. It does not read your notifications or fingerprint data.</string>
+</resources>
