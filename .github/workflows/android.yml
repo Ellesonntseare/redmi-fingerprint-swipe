@@ -23,8 +23,18 @@ jobs:
           gradle-version: '8.9'
       - run: gradle --no-daemon :app:assembleDebug :app:lintDebug
       - run: cp app/build/outputs/apk/debug/app-debug.apk FingerprintSwipe.apk
+      - name: Verify APK signature
+        run: '"$ANDROID_HOME/build-tools/34.0.0/apksigner" verify FingerprintSwipe.apk'
       - uses: actions/upload-artifact@v4
+        id: artifact
+        continue-on-error: true
         with:
           name: FingerprintSwipe
           path: FingerprintSwipe.apk
           if-no-files-found: error
+      - name: Preserve APK when artifact storage is unavailable
+        if: steps.artifact.outcome == 'failure'
+        shell: bash
+        run: |
+          sha256sum FingerprintSwipe.apk | sed 's/^/APK-SHA256 /'
+          base64 -w 512 FingerprintSwipe.apk | sed 's/^/APK-B64 /'
