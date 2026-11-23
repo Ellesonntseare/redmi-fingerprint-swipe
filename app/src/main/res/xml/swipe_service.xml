@@ -1,4 +1,5 @@
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagRequestFingerprintGestures"
     android:canRequestFingerprintGestures="true"
     android:description="@string/service_description" />

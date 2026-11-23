@@ -105,7 +105,9 @@ public final class MainActivity extends Activity {
 
     private void updateStatus() {
         SwipeService service = SwipeService.active;
-        sensor.setText(service == null ? "Accessibility service is off" : service.sensorStatus());
+        sensor.setText(service == null
+                ? "Service disconnected — if enabled, turn it off and back on."
+                : service.sensorStatus());
         swipe.setText(service == null ? "—" : service.swipeStatus());
         action.setText(service == null ? "—" : service.actionStatus());
         test.setEnabled(service != null);
