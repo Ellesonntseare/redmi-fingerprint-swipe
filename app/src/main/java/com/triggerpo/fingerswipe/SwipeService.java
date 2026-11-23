@@ -15,6 +15,7 @@ public final class SwipeService extends AccessibilityService {
     private FingerprintGestureController controller;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private String sensorProblem;
+    private boolean frameworkGesturesDisabled;
     private int swipeCount;
     private String lastSwipe = "None yet";
     private String lastAction = "Not tried";
@@ -52,6 +53,14 @@ public final class SwipeService extends AccessibilityService {
             return;
         }
         sensorProblem = null;
+        // This optional OEM resource distinguishes disabled support from a busy sensor.
+        android.content.res.Resources resources = getResources();
+        int flag = resources.getIdentifier("config_fingerprintSupportsGestures", "bool", "android");
+        try {
+            frameworkGesturesDisabled = flag != 0 && !resources.getBoolean(flag);
+        } catch (android.content.res.Resources.NotFoundException ignored) {
+            frameworkGesturesDisabled = false;
+        }
         try {
             FingerprintGestureController candidate = getFingerprintGestureController();
             if (candidate == null) {
@@ -84,9 +93,12 @@ public final class SwipeService extends AccessibilityService {
             return "Waiting for the fingerprint gesture controller";
         }
         try {
-            return controller.isGestureDetectionAvailable()
-                    ? "Available — swipe the sensor to test"
-                    : "Android reports gestures unavailable. Try again while unlocked.";
+            if (controller.isGestureDetectionAvailable()) {
+                return "Available — swipe the sensor to test";
+            }
+            return frameworkGesturesDisabled
+                    ? "Fingerprint swipes are disabled in this phone’s Android configuration."
+                    : "Gestures currently unavailable. Close any fingerprint prompt and retry.";
         } catch (RuntimeException failure) {
             reportSensorFailure("Fingerprint gesture status check failed", failure);
             return sensorProblem;
